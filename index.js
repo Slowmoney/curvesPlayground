@@ -22,11 +22,17 @@ class circle extends vec2 {
     check(ctx, x, y) {
         return ctx.isPointInPath(this.path, x, y);
     }
-    setPos(x, y, radius) {
+    setPos(x, y, width, height) {
         this.x = x;
         this.y = y;
+        if (this.x > width) {
+            this.x = width;
+        }
+        if (this.y > height) {
+            this.y = height;
+        }
         this.path = new Path2D();
-        this.path.arc(this.x, this.y, radius ? radius : this.radius, 0, 2 * Math.PI);
+        this.path.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
     }
 }
 circle.all = [];
@@ -78,21 +84,26 @@ class main {
                 state.push(last);
             } while (last.length !== 1);
             if (this.index == i) {
+                this.ctx.beginPath();
                 state.forEach((s) => {
                     this.ctx.moveTo(s[0].x, s[0].y);
                     s.forEach((e) => {
                         this.ctx.lineTo(e.x, e.y);
                     });
                 });
+                this.ctx.strokeStyle = 'green';
+                this.ctx.stroke();
+                this.ctx.closePath();
             }
+            this.ctx.beginPath();
             last.forEach((p) => {
                 this.ctx.moveTo(p.x, p.y);
                 this.ctx.lineTo(p.x, p.y + 3);
             });
+            this.ctx.strokeStyle = 'red';
+            this.ctx.stroke();
+            this.ctx.closePath();
         }
-        this.ctx.strokeStyle = 'red';
-        this.ctx.stroke();
-        this.ctx.closePath();
         requestAnimationFrame(this.loop.bind(this));
     }
     reduceCurves(t) {
@@ -116,7 +127,7 @@ class main {
         });
         if (this.mouse && this.selected.length) {
             this.selected.forEach((p) => {
-                p.setPos(e.offsetX, e.offsetY);
+                p.setPos(e.offsetX, e.offsetY, this.el.width, this.el.height);
             });
         }
     }
